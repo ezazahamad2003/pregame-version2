@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Pregame{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h2 mb-0">Your Prospects</h1>
+                    <p class="text-muted">All discovered prospects from your AI-powered discovery sessions</p>
+                </div>
+                <div>
+                    <a href="/discovery" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>
+                        Start New Discovery
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Prospects State -->
+    <div class="row" id="no-prospects" style="display: none;">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-5x text-muted mb-4"></i>
+                <h3 class="text-muted">No Prospects Yet</h3>
+                <p class="text-muted mb-4">Start your first discovery session to find perfect prospects for your business goals.</p>
+                <a href="/discovery" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>
+                    Start Discovery
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prospects Grid -->
+    <div class="row" id="prospects-grid">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        All Prospects (<span id="prospects-count">0</span>)
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="prospects-container">
+                        <!-- Prospects will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="row" id="loading-state">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-spinner fa-spin fa-2x text-primary mb-3"></i>
+                <p class="text-muted">Loading your prospects...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Detail Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalTitle">
+                    <i class="fas fa-user me-2"></i>
+                    Profile Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="profileModalBody">
+                <!-- Profile details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadProspects();
+});
+
+async function loadProspects() {
+    try {
+        const response = await fetch('/api/profiles');
+        const data = await response.json();
+        
+        if (data.profiles && data.profiles.length > 0) {
+            displayProspects(data.profiles);
+            document.getElementById('prospects-count').textContent = data.profiles.length;
+            document.getElementById('no-prospects').style.display = 'none';
+            document.getElementById('prospects-grid').style.display = 'block';
+        } else {
+            document.getElementById('no-prospects').style.display = 'block';
+            document.getElementById('prospects-grid').style.display = 'none';
+        }
+        
+        document.getElementById('loading-state').style.display = 'none';
+        
+    } catch (error) {
+        console.error('Error loading prospects:', error);
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('no-prospects').style.display = 'block';
+    }
+}
+
+function displayProspects(prospects) {
+    const container = document.getElementById('prospects-container');
+    container.innerHTML = '';
+    
+    prospects.forEach(prospect => {
+        const card = createProspectCard(prospect);
+        container.appendChild(card);
+    });
+}
+
+function createProspectCard(prospect) {
+    const col = document.createElement('div');
+    col.className = 'col-md-6 col-lg-4 mb-4';
+    
+    const relevanceColor = getRelevanceColor(prospect.relevance_score);
+    const statusColor = getStatusColor(prospect.status);
+    
+    col.innerHTML = `
+        <div class="card h-100 prospect-card" onclick="showProfileDetails('${prospect.profile_id}')">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="card-title mb-0">${prospect.name || 'Unknown'}</h5>
+                    <span class="badge ${relevanceColor}">${prospect.relevance_score || 'Unscored'}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-building me-1"></i>
+                        ${prospect.prospect_type || 'Unknown Type'}
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <span class="badge ${statusColor}">${formatStatus(prospect.status)}</span>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Discovered: ${new Date(prospect.created_at).toLocaleDateString()}
+                    </small>
+                </div>
+                
+                <div class="text-end">
+                    <small class="text-primary">
+                        <i class="fas fa-eye me-1"></i>
+                        Click to view details
+                    </small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return col;
+}
+
+function getRelevanceColor(score) {
+    switch (score) {
+        case 'High': return 'bg-success';
+        case 'Medium': return 'bg-warning';
+        case 'Low': return 'bg-danger';
+        default: return 'bg-secondary';
+    }
+}
+
+function getStatusColor(status) {
+    switch (status) {
+        case 'discovered': return 'bg-secondary';
+        case 'qualified': return 'bg-primary';
+        case 'contacted': return 'bg-warning';
+        case 'engaged': return 'bg-info';
+        case 'converted': return 'bg-success';
+        case 'rejected': return 'bg-danger';
+        case 'archived': return 'bg-dark';
+        default: return 'bg-secondary';
+    }
+}
+
+function formatStatus(status) {
+    return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+async function showProfileDetails(profileId) {
+    try {
+        const response = await fetch(`/api/profiles/${profileId}`);
+        const profile = await response.json();
+        
+        const modalTitle = document.getElementById('profileModalTitle');
+        const modalBody = document.getElementById('profileModalBody');
+        
+        modalTitle.innerHTML = `
+            <i class="fas fa-user me-2"></i>
+            ${profile.name || 'Unknown'}
+        `;
+        
+        modalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Basic Information
+                    </h6>
+                    <div class="mb-3">
+                        <strong>Name:</strong> ${profile.name || 'N/A'}<br>
+                        <strong>Type:</strong> ${profile.prospect_type || 'N/A'}<br>
+                        <strong>Status:</strong> <span class="badge ${getStatusColor(profile.status)}">${formatStatus(profile.status)}</span><br>
+                        <strong>Relevance:</strong> <span class="badge ${getRelevanceColor(profile.relevance_score)}">${profile.relevance_score || 'Unscored'}</span>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6 class="text-primary">
+                        <i class="fas fa-calendar me-2"></i>
+                        Timeline
+                    </h6>
+                    <div class="mb-3">
+                        <strong>Discovered:</strong> ${new Date(profile.created_at).toLocaleDateString()}<br>
+                        <strong>Last Updated:</strong> ${new Date(profile.updated_at).toLocaleDateString()}
+                    </div>
+                </div>
+            </div>
+            
+            ${profile.contact_info ? `
+                <h6 class="text-primary">
+                    <i class="fas fa-address-book me-2"></i>
+                    Contact Information
+                </h6>
+                <div class="mb-3">
+                    ${profile.contact_info.email ? `<strong>Email:</strong> ${profile.contact_info.email}<br>` : ''}
+                    ${profile.contact_info.phone ? `<strong>Phone:</strong> ${profile.contact_info.phone}<br>` : ''}
+                    ${profile.contact_info.website ? `<strong>Website:</strong> <a href="${profile.contact_info.website}" target="_blank">${profile.contact_info.website}</a><br>` : ''}
+                    ${profile.contact_info.linkedin ? `<strong>LinkedIn:</strong> <a href="${profile.contact_info.linkedin}" target="_blank">${profile.contact_info.linkedin}</a><br>` : ''}
+                </div>
+            ` : ''}
+            
+            ${profile.goal_alignment && profile.goal_alignment.fit_reasons && profile.goal_alignment.fit_reasons.length > 0 ? `
+                <h6 class="text-primary">
+                    <i class="fas fa-bullseye me-2"></i>
+                    Goal Alignment
+                </h6>
+                <div class="mb-3">
+                    <ul class="list-unstyled">
+                        ${profile.goal_alignment.fit_reasons.map(reason => `<li><i class="fas fa-check text-success me-2"></i>${reason}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${profile.recent_activities && profile.recent_activities.length > 0 ? `
+                <h6 class="text-primary">
+                    <i class="fas fa-activity me-2"></i>
+                    Recent Activities
+                </h6>
+                <div class="mb-3">
+                    <ul class="list-unstyled">
+                        ${profile.recent_activities.map(activity => `<li><i class="fas fa-arrow-right text-muted me-2"></i>${activity}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${profile.pain_points && profile.pain_points.length > 0 ? `
+                <h6 class="text-primary">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Pain Points
+                </h6>
+                <div class="mb-3">
+                    <ul class="list-unstyled">
+                        ${profile.pain_points.map(point => `<li><i class="fas fa-arrow-right text-warning me-2"></i>${point}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${profile.buying_signals && profile.buying_signals.length > 0 ? `
+                <h6 class="text-primary">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    Buying Signals
+                </h6>
+                <div class="mb-3">
+                    <ul class="list-unstyled">
+                        ${profile.buying_signals.map(signal => `<li><i class="fas fa-arrow-right text-info me-2"></i>${signal}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${profile.notes && profile.notes.length > 0 ? `
+                <h6 class="text-primary">
+                    <i class="fas fa-sticky-note me-2"></i>
+                    Notes
+                </h6>
+                <div class="mb-3">
+                    ${profile.notes.map(note => `
+                        <div class="card mb-2">
+                            <div class="card-body p-2">
+                                <small class="text-muted">${new Date(note.created_at).toLocaleDateString()}</small>
+                                <p class="mb-0">${note.content}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        `;
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('profileModal'));
+        modal.show();
+        
+    } catch (error) {
+        console.error('Error loading profile details:', error);
+        alert('Error loading profile details. Please try again.');
+    }
+}
+</script>
+
+<style>
+.prospect-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.prospect-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %} 

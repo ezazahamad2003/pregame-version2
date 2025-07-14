@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pregame - AI-Powered Prospect Discovery{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f9fafb;
+            --gradient-bg: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .navbar {
+            background: var(--gradient-bg);
+            box-shadow: 0 2px 20px rgba(99, 102, 241, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+        
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar-nav .nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+        }
+        
+        .main-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            background: var(--gradient-bg);
+            color: white;
+            border-radius: 1rem 1rem 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-bg);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .badge {
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .badge-high {
+            background-color: var(--success-color);
+        }
+        
+        .badge-medium {
+            background-color: var(--warning-color);
+        }
+        
+        .badge-low {
+            background-color: var(--danger-color);
+        }
+        
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            font-weight: 600;
+            border: none;
+        }
+        
+        .table td {
+            border: none;
+            vertical-align: middle;
+        }
+        
+        .form-control {
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+        
+        .alert {
+            border-radius: 0.5rem;
+            border: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+        
+        .toast {
+            border-radius: 0.5rem;
+            border: none;
+        }
+        
+        .modal-content {
+            border-radius: 1rem;
+            border: none;
+        }
+        
+        .modal-header {
+            background: var(--gradient-bg);
+            color: white;
+            border-radius: 1rem 1rem 0 0;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-bg);
+        }
+        
+        .status-discovered { color: #6b7280; }
+        .status-qualified { color: #3b82f6; }
+        .status-contacted { color: #f59e0b; }
+        .status-engaged { color: #8b5cf6; }
+        .status-converted { color: #10b981; }
+        .status-rejected { color: #ef4444; }
+        .status-archived { color: #6b7280; }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .stats-card {
+                margin-bottom: 1rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-bullseye me-2"></i>
+                Pregame
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">
+                            <i class="fas fa-home me-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'discovery_page' %}active{% endif %}" href="/discovery">
+                            <i class="fas fa-search me-1"></i>
+                            Discovery
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container main-container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-bullseye me-2"></i>Pregame</h5>
+                    <p class="text-muted">AI-powered prospect discovery and profile management system</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="text-muted">
+                        © 2024 Pregame. Built with intelligence and purpose.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong class="me-auto">Pregame</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Common JavaScript -->
+    <script>
+        // Common functions and utilities
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastBody = toast.querySelector('.toast-body');
+            const toastHeader = toast.querySelector('.toast-header');
+            
+            toastBody.textContent = message;
+            
+            // Update toast icon based on type
+            const icon = toastHeader.querySelector('i');
+            icon.className = `fas me-2 ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}`;
+            
+            // Update toast color
+            toast.className = `toast text-bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'}`;
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+        
+        function showLoading(show = true) {
+            const spinner = document.querySelector('.loading-spinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+        
+        function formatRelevanceScore(score) {
+            const badges = {
+                'High': '<span class="badge badge-high">High</span>',
+                'Medium': '<span class="badge badge-medium">Medium</span>',
+                'Low': '<span class="badge badge-low">Low</span>',
+                'Unscored': '<span class="badge bg-secondary">Unscored</span>'
+            };
+            return badges[score] || '<span class="badge bg-secondary">Unknown</span>';
+        }
+        
+        function formatStatus(status) {
+            const statuses = {
+                'discovered': '<span class="badge bg-secondary">Discovered</span>',
+                'qualified': '<span class="badge bg-primary">Qualified</span>',
+                'contacted': '<span class="badge bg-warning">Contacted</span>',
+                'engaged': '<span class="badge bg-info">Engaged</span>',
+                'converted': '<span class="badge bg-success">Converted</span>',
+                'rejected': '<span class="badge bg-danger">Rejected</span>',
+                'archived': '<span class="badge bg-dark">Archived</span>'
+            };
+            return statuses[status] || '<span class="badge bg-secondary">Unknown</span>';
+        }
+        
+        // API helper functions
+        async function apiRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                throw error;
+            }
+        }
+        
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Discovery - Pregame{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Discovery Form -->
+            <div class="card shadow" id="discovery-form">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-search me-2"></i>
+                        Find Your Perfect Prospects
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form id="discovery-form-submit">
+                        <!-- Company Information -->
+                        <div class="mb-4">
+                            <label for="company-name" class="form-label">
+                                <i class="fas fa-building me-2"></i>
+                                Company Name
+                            </label>
+                            <input type="text" class="form-control" id="company-name" 
+                                   placeholder="Enter your company name" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="company-description" class="form-label">
+                                <i class="fas fa-info-circle me-2"></i>
+                                What does your company do?
+                            </label>
+                            <textarea class="form-control" id="company-description" rows="3" 
+                                      placeholder="Describe your company, products, or services..." required></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="industry" class="form-label">
+                                <i class="fas fa-industry me-2"></i>
+                                Industry
+                            </label>
+                            <input type="text" class="form-control" id="industry" 
+                                   placeholder="e.g., Technology, Healthcare, Finance" required>
+                        </div>
+
+                        <!-- Goal -->
+                        <div class="mb-4">
+                            <label for="goal" class="form-label">
+                                <i class="fas fa-target me-2"></i>
+                                What are you looking for?
+                            </label>
+                            <textarea class="form-control" id="goal" rows="3" 
+                                      placeholder="e.g., Find potential clients for our AI automation services, Looking for investors for our startup, Need strategic partners..." required></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search me-2"></i>
+                                Look for Prospects
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Discovery Process -->
+            <div class="card shadow mt-4" id="discovery-process" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        AI Discovery in Progress
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 id="progress-bar" role="progressbar" style="width: 0%">
+                                <span id="progress-text">0%</span>
+                            </div>
+                        </div>
+                        <small class="text-muted mt-2 d-block" id="progress-subtitle">Initializing AI discovery engine...</small>
+                    </div>
+
+                    <!-- Current Process -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">
+                            <i class="fas fa-robot me-2"></i>
+                            Current Process
+                        </h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div id="current-process" class="text-center">
+                                    <i class="fas fa-spinner fa-spin fa-2x text-primary mb-3"></i>
+                                    <p class="mb-0" id="process-text">Starting discovery...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Activity -->
+                    <div class="mb-4">
+                        <h5 class="text-primary">
+                            <i class="fas fa-stream me-2"></i>
+                            Live Activity
+                        </h5>
+                        <div class="card bg-light" style="max-height: 300px; overflow-y: auto;">
+                            <div class="card-body">
+                                <div id="live-activity">
+                                    <div class="text-muted">
+                                        <i class="fas fa-clock me-2"></i>
+                                        Waiting for process to begin...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Elapsed Time -->
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-stopwatch me-2"></i>
+                            Elapsed time: <span id="elapsed-time">00:00</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="card shadow mt-4" id="discovery-results" style="display: none;">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Discovery Complete
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                        <h5>Found <span id="results-count">0</span> prospects!</h5>
+                        <p class="text-muted">Your prospects have been analyzed and are ready for review.</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="/dashboard" class="btn btn-primary btn-lg">
+                            <i class="fas fa-eye me-2"></i>
+                            View All Prospects
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="startNewDiscovery()">
+                            <i class="fas fa-plus me-2"></i>
+                            Start New Discovery
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentSessionId = null;
+let startTime = null;
+let progressInterval = null;
+let timeInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('discovery-form-submit');
+    form.addEventListener('submit', startDiscovery);
+});
+
+async function startDiscovery(e) {
+    e.preventDefault();
+    
+    const formData = {
+        company_name: document.getElementById('company-name').value,
+        company_description: document.getElementById('company-description').value,
+        industry: document.getElementById('industry').value,
+        goal: document.getElementById('goal').value
+    };
+
+    try {
+        // Start discovery session
+        const response = await fetch('/api/discovery/start', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            currentSessionId = data.session_id;
+            startTime = new Date();
+            
+            // Hide form and show process
+            document.getElementById('discovery-form').style.display = 'none';
+            document.getElementById('discovery-process').style.display = 'block';
+            
+            // Start monitoring progress
+            startProgressMonitoring();
+            startTimeCounter();
+            
+        } else {
+            alert('Error starting discovery: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error starting discovery. Please try again.');
+    }
+}
+
+function startProgressMonitoring() {
+    progressInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/discovery/status/${currentSessionId}`);
+            const status = await response.json();
+            
+            updateProgress(status);
+            
+            if (status.status === 'completed') {
+                clearInterval(progressInterval);
+                clearInterval(timeInterval);
+                showResults(status);
+            } else if (status.status === 'error') {
+                clearInterval(progressInterval);
+                clearInterval(timeInterval);
+                showError(status.error);
+            }
+        } catch (error) {
+            console.error('Error checking progress:', error);
+        }
+    }, 2000);
+}
+
+function startTimeCounter() {
+    timeInterval = setInterval(() => {
+        const now = new Date();
+        const elapsed = Math.floor((now - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        
+        document.getElementById('elapsed-time').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+function updateProgress(status) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const progressSubtitle = document.getElementById('progress-subtitle');
+    const processText = document.getElementById('process-text');
+    const liveActivity = document.getElementById('live-activity');
+    
+    // Update progress bar
+    progressBar.style.width = `${status.progress}%`;
+    progressText.textContent = `${status.progress}%`;
+    
+    // Update current process
+    const processMessages = {
+        'initializing': 'Initializing AI discovery engine...',
+        'analyzing': 'Analyzing your company and goals...',
+        'researching': 'Researching potential prospects...',
+        'qualifying': 'Qualifying and scoring prospects...',
+        'finalizing': 'Finalizing results...',
+        'running': 'Deep research in progress...'
+    };
+    
+    processText.textContent = processMessages[status.current_stage] || 'Processing...';
+    progressSubtitle.textContent = status.current_stage || 'In progress...';
+    
+    // Add live activity from detailed log
+    if (status.activity_log && status.activity_log.length > 0) {
+        // Clear existing activities and add all from log
+        liveActivity.innerHTML = '';
+        
+        status.activity_log.forEach(activity => {
+            const timestamp = new Date(activity.timestamp).toLocaleTimeString();
+            const activityItem = document.createElement('div');
+            activityItem.className = 'mb-2';
+            activityItem.innerHTML = `
+                <span class="badge bg-primary me-2">${timestamp}</span>
+                <span>${activity.message}</span>
+            `;
+            liveActivity.appendChild(activityItem);
+        });
+        
+        // Scroll to bottom
+        liveActivity.scrollTop = liveActivity.scrollHeight;
+    }
+}
+
+async function showResults(status) {
+    document.getElementById('discovery-process').style.display = 'none';
+    document.getElementById('discovery-results').style.display = 'block';
+    
+    // Get results count
+    try {
+        const response = await fetch(`/api/discovery/results/${currentSessionId}`);
+        const results = await response.json();
+        
+        document.getElementById('results-count').textContent = results.prospects?.length || 0;
+    } catch (error) {
+        console.error('Error getting results:', error);
+    }
+}
+
+function showError(error) {
+    document.getElementById('discovery-process').style.display = 'none';
+    alert('Discovery failed: ' + error);
+    startNewDiscovery();
+}
+
+function startNewDiscovery() {
+    // Reset everything
+    currentSessionId = null;
+    startTime = null;
+    
+    if (progressInterval) clearInterval(progressInterval);
+    if (timeInterval) clearInterval(timeInterval);
+    
+    // Reset UI
+    document.getElementById('discovery-form').style.display = 'block';
+    document.getElementById('discovery-process').style.display = 'none';
+    document.getElementById('discovery-results').style.display = 'none';
+    
+    // Reset form
+    document.getElementById('discovery-form-submit').reset();
+    
+    // Reset progress
+    document.getElementById('progress-bar').style.width = '0%';
+    document.getElementById('progress-text').textContent = '0%';
+    document.getElementById('live-activity').innerHTML = '<div class="text-muted"><i class="fas fa-clock me-2"></i>Waiting for process to begin...</div>';
+    document.getElementById('elapsed-time').textContent = '00:00';
+}
+</script>
+{% endblock %} 

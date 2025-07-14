@@ -1,0 +1,28 @@
+# Core dependencies for Pregame Client Discovery Engine
+langchain-deepresearch>=0.1.0
+langchain-openai>=0.3.0
+langchain-core>=0.3.0
+
+# HTTP and async support
+aiohttp>=3.8.0
+asyncio>=3.4.3
+requests>=2.0.0
+
+# Data processing
+PyYAML>=6.0
+pydantic>=2.7.4
+
+# OpenAI integration
+openai>=1.86.0
+tiktoken>=0.7
+
+# JSON processing
+jsonpatch>=1.33
+
+# Utility packages
+pathlib2>=2.3.7
+typing-extensions>=4.7
+
+# Web framework
+Flask>=2.3.0
+Flask-CORS>=4.0.0 

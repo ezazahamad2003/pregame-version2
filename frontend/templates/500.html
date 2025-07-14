@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Pregame{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="text-center">
+            <div class="mb-4">
+                <i class="fas fa-exclamation-triangle fa-5x text-danger mb-3"></i>
+                <h1 class="display-4 text-danger">500</h1>
+                <h2 class="h4 mb-3">Internal Server Error</h2>
+                <p class="lead text-muted">
+                    Something went wrong on our end. We're working to fix this issue.
+                </p>
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-tools me-2"></i>
+                <strong>What happened?</strong> Our server encountered an unexpected condition that prevented it from fulfilling your request.
+            </div>
+            
+            <div class="mb-4">
+                <h5>What you can do:</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-sync-alt me-2 text-primary"></i>
+                        Try refreshing the page
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-clock me-2 text-warning"></i>
+                        Wait a few minutes and try again
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-home me-2 text-success"></i>
+                        Go back to the dashboard
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-primary" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    Try Again
+                </button>
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>
+                    Go Home
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <div class="alert alert-light">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Still having issues?</strong> 
+                    Make sure your .env.local file is properly configured with valid API keys.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
