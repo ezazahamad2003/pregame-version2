@@ -78,7 +78,7 @@ async def main():
         analysis = await discovery_engine.analyze_company_and_goal(company_data, goal)
         
         # Generate intelligent report with saved profiles info
-        final_report = discovery_engine.format_intelligent_report(prospects, company_data, goal, analysis, final_results.get('saved_profiles', []))
+        final_report = discovery_engine.format_intelligent_report(prospects, company_data, goal, analysis, [])
         
         # Display results
         display_summary(prospects, goal, company_data.get('company_name', 'Your Company'))
@@ -107,7 +107,7 @@ async def main():
         print(f"   - {len(prospects)} prospects found with goal alignment analysis")
         
         # Profile management info
-        saved_profiles = final_results.get('saved_profiles', [])
+        saved_profiles = []  # CLI version doesn't save profiles to database
         if saved_profiles:
             print(f"\n💾 Profile Management:")
             print(f"   - {len(saved_profiles)} prospect profiles saved to local database")

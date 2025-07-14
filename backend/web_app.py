@@ -14,12 +14,13 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
 from flask_cors import CORS
 
 from src.core.discovery_engine import PregameClientDiscovery
 from src.data.profile_manager import ProfileManager
 from src.data.profile_storage import ProfileStorage
+from src.data.prospect_profile import ProspectStatus
 from src.utils.env_manager import get_api_keys, validate_api_keys
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
